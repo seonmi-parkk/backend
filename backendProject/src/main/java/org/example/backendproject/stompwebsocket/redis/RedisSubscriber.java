@@ -3,12 +3,14 @@ package org.example.backendproject.stompwebsocket.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.backendproject.stompwebsocket.dto.ChatMessage;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener{
@@ -37,7 +39,7 @@ public class RedisSubscriber implements MessageListener{
             }
         }
         catch (Exception e) {
-
+            log.error("RedisSubscriber onMessage 에러 : " + e.getMessage());
         }
 
     }

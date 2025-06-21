@@ -5,24 +5,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.backendproject.stompwebsocket.dto.ChatMessage;
+import org.example.backendproject.stompwebsocket.gpt.GPTService;
 import org.example.backendproject.stompwebsocket.redis.RedisPublisher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
 
-    //단일 브로드캐스트 (방을 동적으로 생성이 안됨)
-//    @MessageMapping("/chat.sendMessage")
-//    @SendTo("/topic/public")
-//    public ChatMessage sendMessage(ChatMessage message){
-//        return message;
-//    }
-
+    private final GPTService gptService;
 
     //서버가 클라이언트에게 수동으로 메세지를 보낼 수 있도록 하는 클래스
     private final SimpMessagingTemplate template;
@@ -34,6 +31,24 @@ public class ChatController {
     private final RedisPublisher redisPublisher;
     private ObjectMapper objectMapper  = new ObjectMapper();
 
+    @RequestMapping("/test")
+    @ResponseBody
+    public String test() {
+        return "test";
+    }
+
+    //단일 브로드캐스트 (방을 동적으로 생성이 안됨)
+    @MessageMapping("/gpt")
+    public void sendMessageGPT(ChatMessage message) throws Exception {
+        template.convertAndSend("/topic/gpt",message); // 내가 보낸 메세지 출력
+
+        String getResponse = gptService.gptMessage(message.getMessage());
+        ChatMessage chatMessage = new ChatMessage("GPT",getResponse);
+
+        template.convertAndSend("/topic/gpt",chatMessage); // 답변 출력
+
+    }
+
     @MessageMapping("/chat.sendMessage")
     public void sendmessage(ChatMessage message) throws JsonProcessingException {
 
@@ -44,7 +59,7 @@ public class ChatController {
 
         if (message.getTo() != null && !message.getTo().isEmpty()) {
             // 귓속말
-            //내 아이디로 귓속말경로를 활성화 함
+            // 내 아이디로 귓속말경로를 활성화 함
             channel = "private."+message.getRoomId();
             msg = objectMapper.writeValueAsString(message);
 

@@ -34,14 +34,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         /** 서버가 특정 사용자에게 메시지를 보낼 때, 클라이언트가 구독할 경로 접두어 **/
         registry.setUserDestinationPrefix("/user"); // 서버 -> 특정 사용자
 
-
-
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-chat")
+        registry.addEndpoint("/ws-chat") // 채팅방
                 .setHandshakeHandler(new CustomHandshakeHandler())
                 .setAllowedOriginPatterns("*");
+
+        registry.addEndpoint("/ws-gpt") // gpt
+                .setAllowedOriginPatterns("*");
+
     }
 }

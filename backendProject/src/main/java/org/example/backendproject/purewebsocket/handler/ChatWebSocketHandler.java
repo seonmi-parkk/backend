@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     //세션을 관리하는 객체
-    //Collections.synchronizedSet <- 여러 스레드가 동시에 이 객체에 접근할 때 동시설 문제를 안전하게 만들어주는 역할
+    //Collections.synchronizedSet <- 여러 스레드가 동시에 이 객체에 접근할 때 동시성 문제를 안전하게 만들어주는 역할
     private final Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<>());
 
     //json 문자열 <-> 자바 객체 변환
